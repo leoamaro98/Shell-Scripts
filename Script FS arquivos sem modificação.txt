@@ -1,0 +1,13 @@
+﻿SCript
+
+
+Function Get-NeglectedFiles { 
+Param([string[]]$path,
+  [int]$numberDays)
+  $cutOffDate = (Get-Date).AddDays(-$numberDays)
+  Get-ChildItem -Path $path -Recurse|
+  Where-Object {$_.LastAccessTime -le $cutOffDate}
+  }
+
+
+Get-NeglectedFiles -path E:\Datos -numberDays 365 | select name, lastaccesstime, directory | Export-Csv -Path c:\RelatorioFileServer.csv -NoTypeInformation -Encoding UTF8 -Delimiter ";"
