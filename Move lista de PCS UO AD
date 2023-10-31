@@ -1,0 +1,23 @@
+# Importar o módulo Active Directory
+Import-Module ActiveDirectory
+
+# Definir as informações do equipamento
+$ouOrigem = "OU=_COMPUTERS-WINDOWS_BL,OU=_CONTABILIZEI,DC=CONTABILIZEI,DC=COM,DC=BR"
+$ouDestino = "OU=_MICROSOFT_LAPS,OU=_COMPUTERS-WINDOWS_BL,OU=_CONTABILIZEI,DC=CONTABILIZEI,DC=COM,DC=BR"
+
+# Ler a lista de equipamentos de um arquivo de texto
+$listaEquipamentos = Get-Content -Path "C:\GPO LAPS\pc-lideres.txt"
+
+foreach ($equipamentoNome in $listaEquipamentos) {
+    # Obter o objeto do equipamento
+    $equipamento = Get-ADComputer -Filter {Name -eq $equipamentoNome} -SearchBase $ouOrigem
+
+    # Verificar se o equipamento foi encontrado
+    if ($equipamento -eq $null) {
+        Write-Host "Equipamento '$equipamentoNome' não encontrado na Unidade Organizacional de origem."
+    } else {
+        # Mover o equipamento para a nova Unidade Organizacional
+        Move-ADObject -Identity $equipamento.DistinguishedName -TargetPath $ouDestino
+        Write-Host "Equipamento '$equipamentoNome' movido com sucesso para a Unidade Organizacional de destino."
+    }
+}
